@@ -3,8 +3,10 @@
 
 ## Table of Contents
 - [About](#about)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Technicals](#technicals)
+    - [Architecture](#architecture)
+    - [Installation](#installation)
+- [Learning Resources](#learning-resources)
 - [Collaborators](#collaborators)
 - [License](#license)
 
@@ -13,13 +15,14 @@
 Omdena Hyderabad Local Chapter is working on a LLM based chatbot that can conduct mock interviews for aspiring candidates, evaluate the responses of job aspirants during mock HR interviews and provide quantitative, personalized feedback for each candidate along with recommendations to develop their skills to successfully navigate HR rounds of interviews.
 
 
-## Technologies
+## Setup
+
+### Architecture
+
+### Installation
 
 
-## Installation
-
-
-## Usage
+## Learning Resources
 
 
 ## Collaborators
