@@ -80,8 +80,6 @@ The project follows the following folder structure:
     │   ├── docs/                     --> Task 4 Documentation Directory
     │   │   ├── Modelling.md
     │   │   └── assets/               --> Task 4 Documentation Assets
-    │   ├── lib/                      --> Task 4 Library Directory
-    │   │   └── __init__.py
     │   └── notebook/                 --> Task 4 Notebook Directory
     └── task-5/                       --> Task 5 Directory (Deployment)
         ├── README.md                 --> Task 5 README
