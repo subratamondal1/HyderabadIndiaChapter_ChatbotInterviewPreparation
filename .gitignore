@@ -6,9 +6,15 @@ desktop.ini
 
 
 # Dependencies
+.vscode/
+.pycharm/
+.idea/
+
 .venv/
 venv/
 env/
+
+__pycache__/
 
 .env
 .*.env

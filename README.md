@@ -28,14 +28,18 @@ The project follows the following folder structure:
 ├── data                               --> Data Directory
 │   ├── README.md                      --> Data README
 │   ├── final                          --> Final Data
-│   └── final.dvc
+│   ├── final.dvc
+│   ├── processed                      --> Processed Data
+│   ├── processed.dvc
+│   ├── raw                            --> Raw Data
+│   └── raw.dvc
 ├── docs/                              --> Documentation Directory
 │   ├── Data.md                        --> Data Documentation
 │   ├── Preprocess.md                  --> Preprocessing Documentation
 │   ├── Analysis.md                    --> Analysis Documentation
 │   ├── Modelling.md                   --> Modelling Documentation
 │   ├── Deployment.md                  --> Deployment Documentation
-│   └── assets                         --> Documentation Assets
+│   └── assets/                        --> Documentation Assets
 ├── lib/                               --> Library Directory
 │   └── __init__.py
 ├── poetry.lock                       --> Poetry Lock File
@@ -43,51 +47,18 @@ The project follows the following folder structure:
 └── src/                              --> Source Directory
     ├── task-1/                       --> Task 1 Directory (Data Collection)
     │   ├── README.md                 --> Task 1 README
-    │   ├── data/                     --> Task 1 Data Directory
-    │   │   ├── README.md
-    │   │   ├── external/             --> Task 1 External Data Directory
-    │   │   ├── external.dvc
-    │   │   ├── raw/                  --> Task 1 Raw Data Directory
-    │   │   └── raw.dvc
-    │   ├── docs/                     --> Task 1 Documentation Directory
-    │   │   ├── Data.md
-    │   │   └── assets/               --> Task 1 Documentation Assets
-    │   ├── notebook/                 --> Task 1 Notebook Directory
-    │   └── scripts/                  --> Task 1 Scripts Directory
-    │       └── __init__.py
+    │   └── notebook/                 --> Task 1 Notebook Directory
     ├── task-2/                       --> Task 2 Directory (Data Preprocessing)
     │   ├── README.md                 --> Task 2 README
-    │   ├── data/                     --> Task 2 Data Directory
-    │   │   ├── README.md
-    │   │   ├── processed/            --> Task 2 Processed Data Directory
-    │   │   └── processed.dvc
-    │   ├── docs/                     --> Task 2 Documentation Directory
-    │   │   ├── Preprocess.md
-    │   │   └── assets/               --> Task 2 Documentation Assets
-    │   ├── notebook/                 --> Task 2 Notebook Directory
-    │   └── scripts/                  --> Task 2 Scripts Directory
-    │       └── __init__.py
+    │   └── notebook/                 --> Task 2 Notebook Directory
     ├── task-3/                       --> Task 3 Directory (Data Analysis)
-    │   ├── README.md
-    │   ├── docs
-    │   │   ├── Analysis.md
-    │   │   └── assets
-    │   ├── notebook
-    │   └── scripts
-    │       └── __init__.py
+    │   ├── README.md                 --> Task 3 README
+    │   └── notebook/                 --> Task 3 Notebook Directory
     ├── task-4/                       --> Task 4 Directory (Modelling)
     │   ├── README.md                 --> Task 4 README
-    │   ├── docs/                     --> Task 4 Documentation Directory
-    │   │   ├── Modelling.md
-    │   │   └── assets/               --> Task 4 Documentation Assets
-    │   ├── lib/                      --> Task 4 Library Directory
-    │   │   └── __init__.py
     │   └── notebook/                 --> Task 4 Notebook Directory
     └── task-5/                       --> Task 5 Directory (Deployment)
-        ├── README.md                 --> Task 5 README
-        └── docs/                     --> Task 5 Documentation Directory
-            ├── Deployment.md
-            └── assets/               --> Task 5 Documentation Assets
+        └── README.md                 --> Task 5 README
 ```
 
 
