@@ -1,12 +1,18 @@
+import importlib
 import json
 from typing import Optional
 
 from openai import OpenAI
 
-from lib.configs import OPENAI_API_KEY
+from lib.configs import OPENAI_API_KEY, PALM_API_KEY
 from lib.types import Evaluation, Question
 
-__all__ = ["BaseAgent"]
+__all__ = [
+    "BaseAgent",
+    "OpenAIQuestionGeneratorAgent",
+    "PalmQuestionGeneratorAgent",
+    "OpenAIResponseEvaluationAgent",
+]
 
 
 class BaseAgent:
@@ -123,6 +129,105 @@ JSON format:
 
             return questions
         except Exception:
+            return None
+
+
+class PalmQuestionGeneratorAgent(BaseAgent):
+    def __init__(self):
+        super().__init__()
+        self.client = importlib.import_module("google.generativeai")
+        self.client.configure(api_key=PALM_API_KEY)
+        self.system_prompt = """You are a non-technical interviewer that interviews \
+across the following categories:
+- personal
+- role-specific
+- behavioural
+- situational
+
+You will be provided with a candidate's description.
+
+Generate {n_questions} questions, ensuring that there is a question for each category \
+and the questions should be based on the candidate's description.
+
+* You answer strictly as a list of JSON objects. Don't include any other verbose texts, \
+and don't include the markdown syntax anywhere.
+
+JSON format:
+[
+    {{"question": "<personal_question>", "type": "personal"}},
+    {{"question": "<role_specific_question>", "type": "role-specific"}},
+    {{"question": "<behavioural_question>", "type": "behavioural"}},
+    {{"question": "<situational_question>", "type": "situational"}},
+    ...more questions to make up {n_questions} questions
+]
+
+
+===
+Candidate Description:
+{description}"""
+
+    def __call__(self, description: str, n_questions: int = 4) -> Optional[list[Question]]:
+        """
+        Generate interview questions based on the given description.
+
+        Args:
+            description (str): The description used as input for question generation.
+            n_questions (int, optional): The number of questions to generate. Defaults to 4.
+
+        Returns:
+            Optional[list[Question]]: A list of generated interview questions or None if an error occurs.
+        """
+
+        # Generate questions
+        questions = self._generate(description, n_questions)
+
+        return questions
+
+    def run(self, description: str, n_questions: int = 4) -> Optional[list[Question]]:
+        """
+        Generate interview questions based on the given description.
+
+        Args:
+            description (str): The description used as input for question generation.
+            n_questions (int, optional): The number of questions to generate. Defaults to 4.
+
+        Returns:
+            Optional[list[Question]]: A list of generated interview questions or None if an error occurs.
+        """
+
+        # Generate questions
+        questions = self._generate(description, n_questions)
+
+        return questions
+
+    def _generate(self, description: str, n_questions: int) -> Optional[list[Question]]:
+        """
+        Generate interview questions based on the given description.
+
+        Args:
+            description (str): The description used as input for question generation.
+            n_questions (int): The number of questions to generate.
+
+        Returns:
+            Optional[list[Question]]: A list of generated interview questions or None if an error occurs.
+        """
+
+        try:
+            # Ensure that there are at least 4 questions
+            if n_questions < 4:
+                n_questions = 4
+
+            output = self.client.generate_text(
+                model="models/text-bison-001",
+                prompt=self.system_prompt.format(n_questions=n_questions, description=description),
+                temperature=1,
+                max_output_tokens=1024,
+            )
+            questions = json.loads(output.result)
+
+            return questions
+        except Exception as e:
+            print(e)
             return None
 
 
