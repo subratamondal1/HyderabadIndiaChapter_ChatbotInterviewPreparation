@@ -7,12 +7,15 @@ from openai import OpenAI as __OpenAI
 from lib.configs import COHERE_API_KEY as __COHERE_API_KEY
 from lib.configs import OPENAI_API_KEY as __OPENAI_API_KEY
 from lib.configs import PALM_API_KEY as __PALM_API_KEY
-from lib.types import Question
+from lib.types import Evaluation, Question
 
 __all__ = [
     "OpenAIQuestionGeneratorAgent",
     "PalmQuestionGeneratorAgent",
     "CohereQuestionGeneratorAgent",
+    "OpenAIResponseEvaluationAgent",
+    "PalmResponseEvaluationAgent",
+    "CohereResponseEvaluationAgent",
 ]
 
 
@@ -327,5 +330,297 @@ Candidate Description:
             questions = __json.loads(output.generations[0].text or "[]")
 
             return questions
+        except Exception:
+            return None
+
+
+class OpenAIResponseEvaluationAgent(__BaseAgent):
+    def __init__(self):
+        super().__init__()
+
+        self.client = __OpenAI(api_key=__OPENAI_API_KEY)
+        self.system_prompt = """You are an interviewer evaluating a candidate's \
+response to an interview question. Your task is to:
+- Evaluate the candidate's response on the scale of "good", "average", and "bad".
+- Provide a reason for why it's categorized as good, average, or bad.
+- Offer constructive feedback or suggestions for improvement.
+- Provide 2 samples of good responses.
+
+You will be provided with an interview question and a candidate response.
+
+Evaluate and provide output in the following JSON format:
+{{
+    "evaluation": "good, average, or bad",
+    "reason": "Reason why it's good, average, or bad",
+    "feedback": "Feedback or suggestions for improvement",
+    "samples": [
+        "<Good response 1>",
+        "<Good response 2>"
+    ]
+}}"""
+        self.user_prompt = """QUESTION:
+{question}
+
+RESPONSE:
+{response}"""
+
+    def __call__(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        # Generate questions
+        evaluation = self._generate(question, response)
+
+        return evaluation
+
+    def run(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        # Generate questions
+        evaluation = self._generate(question, response)
+
+        return evaluation
+
+    def _generate(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        try:
+            output = self.client.chat.completions.create(
+                model="gpt-3.5-turbo-1106",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": self.system_prompt,
+                    },
+                    {
+                        "role": "user",
+                        "content": self.user_prompt.format(question=question, response=response),
+                    },
+                ],
+                temperature=0.5,
+                max_tokens=1024,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0,
+            )
+
+            questions = __json.loads(output.choices[0].message.content or "{}")
+
+            return questions
+        except Exception:
+            return None
+
+
+class PalmResponseEvaluationAgent(__BaseAgent):
+    def __init__(self):
+        super().__init__()
+
+        self.client = __importlib.import_module("google.generativeai")
+        self.client.configure(api_key=__PALM_API_KEY)
+        self.system_prompt = """You are an interviewer evaluating a candidate's \
+response to an interview question. Your task is to:
+- Evaluate the candidate's response on the scale of "good", "average", and "bad".
+- Provide a reason for why it's categorized as good, average, or bad.
+- Offer constructive feedback or suggestions for improvement.
+- Provide 2 samples of good responses.
+
+You will be provided with an interview question and a candidate response.
+
+Evaluate and provide output in the following JSON format:
+{{
+    "evaluation": "good, average, or bad",
+    "reason": "Reason why it's good, average, or bad",
+    "feedback": "Feedback or suggestions for improvement",
+    "samples": [
+        "Good response 1",
+        "Good response 2"
+    ]
+}}
+
+
+===
+QUESTION:
+{question}
+
+RESPONSE:
+{response}"""
+
+    def __call__(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        # Generate questions
+        evaluation = self._generate(question, response)
+
+        return evaluation
+
+    def run(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        # Generate questions
+        evaluation = self._generate(question, response)
+
+        return evaluation
+
+    def _generate(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        try:
+            output = self.client.generate_text(
+                model="models/text-bison-001",
+                prompt=self.system_prompt.format(question=question, response=response),
+                temperature=1,
+                max_output_tokens=1024,
+            )
+
+            evaluations = __json.loads(output.result)
+
+            return evaluations
+        except Exception:
+            return None
+
+
+class CohereResponseEvaluationAgent(__BaseAgent):
+    def __init__(self):
+        super().__init__()
+
+        self.client = __cohere.Client(__COHERE_API_KEY)
+        self.system_prompt = """You are an interviewer evaluating a candidate's \
+response to an interview question. Your task is to:
+- Evaluate the candidate's response on the scale of "good", "average", and "bad".
+- Provide a reason for why it's categorized as good, average, or bad.
+- Offer constructive feedback or suggestions for improvement.
+- Provide 2 samples of good responses.
+
+You will be provided with an interview question and a candidate response.
+
+Evaluate and provide output in the following JSON format:
+{{
+    "evaluation": "good, average, or bad",
+    "reason": "Reason why it's good, average, or bad",
+    "feedback": "Feedback or suggestions for improvement",
+    "samples": [
+        "Good response 1",
+        "Good response 2"
+    ]
+}}
+
+
+===
+QUESTION:
+{question}
+
+RESPONSE:
+{response}"""
+
+    def __call__(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        # Generate questions
+        evaluation = self._generate(question, response)
+
+        return evaluation
+
+    def run(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        # Generate questions
+        evaluation = self._generate(question, response)
+
+        return evaluation
+
+    def _generate(self, question: str, response: str) -> Evaluation | None:
+        """
+        Evaluate a candidate's response to an interview question.
+
+        Args:
+            question (str): The interview question.
+            response (str): The candidate's response.
+
+        Returns:
+            Evaluation | None: The evaluation of the candidate's response or None if an error occurred.
+        """
+
+        try:
+            output = self.client.generate(
+                model="command",
+                prompt=self.system_prompt.format(question=question, response=response),
+                temperature=1,
+                max_tokens=1024,
+            )
+
+            evaluations = __json.loads(output.generations[0].text)
+
+            return evaluations
         except Exception:
             return None
